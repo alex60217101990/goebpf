@@ -8,7 +8,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/dropbox/goebpf"
+	"github.com/alex60217101990/goebpf"
 )
 
 func TestGetNumOfPossibleCpus(t *testing.T) {

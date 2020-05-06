@@ -8,8 +8,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dropbox/goebpf"
 	"github.com/stretchr/testify/suite"
+
+	"github.com/alex60217101990/goebpf"
 )
 
 const (

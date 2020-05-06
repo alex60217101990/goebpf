@@ -302,7 +302,7 @@ import (
 	"errors"
 	"unsafe"
 
-	"github.com/dropbox/goebpf"
+	"github.com/alex60217101990/goebpf"
 )
 
 // MockMap defines eBPF mockmap and implements Map interface

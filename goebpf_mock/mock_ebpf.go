@@ -4,7 +4,7 @@
 package goebpf_mock
 
 import (
-	"github.com/dropbox/goebpf"
+	"github.com/alex60217101990/goebpf"
 )
 
 // MockSystem is mock implementation of eBPF system

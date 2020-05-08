@@ -45,29 +45,7 @@ type Program interface {
 	GetType() ProgramType
 }
 
-// Map defines interface to interact with eBPF maps
-type Map interface {
-	Create() error
-	GetFd() int
-	GetName() string
-	GetType() MapType
-	Close() error
-	// Makes a copy of map definition. This will NOT create map, just copies definition, "template".
-	// Useful for array/map of maps use case
-	CloneTemplate() Map
-	// Generic lookup. Accepts any type which will be
-	// converted to []byte eventually, returns bytes
-	Lookup(interface{}) ([]byte, error)
-	// The same, but does casting of return value to int / uint64
-	LookupInt(interface{}) (int, error)
-	LookupUint64(interface{}) (uint64, error)
-	// The same, but does casting of return value to string
-	LookupString(interface{}) (string, error)
-	Insert(interface{}, interface{}) error
-	Update(interface{}, interface{}) error
-	Upsert(interface{}, interface{}) error
-	Delete(interface{}) error
-}
+
 
 const (
 	// Maximum buffer size for kernel's eBPF verifier error log messages

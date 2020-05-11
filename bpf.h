@@ -4,7 +4,6 @@
  * modify it under the terms of version 2 of the GNU General Public
  * License as published by the Free Software Foundation.
  */
-
 // This is simplified version of linux/uapi/bpf.h
 
 #ifndef _BPF_H__

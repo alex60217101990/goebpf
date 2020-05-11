@@ -121,6 +121,8 @@ import (
 	"sync"
 	"time"
 	"unsafe"
+
+	"github.com/alex60217101990/types/models/fw"
 )
 
 const (
@@ -415,6 +417,9 @@ func KeyValueToBytes(ival interface{}, size int) ([]byte, error) {
 		// however, for eBPF IP addr must be in BIG endian (network byte order)
 		copy(res[4:], val.IP)
 		return res, nil
+	case fw.PortKey:
+		const sz = int(unsafe.Sizeof(fw.PortKey{}))
+		res = (*(*[sz]byte)(unsafe.Pointer(&val)))[:]
 	default:
 		return nil, fmt.Errorf("Type %T is not supported yet", val)
 	}

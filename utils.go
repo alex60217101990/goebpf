@@ -122,7 +122,6 @@ import (
 	"unsafe"
 
 	"github.com/alex60217101990/goebpf/cgotypes"
-	"github.com/alex60217101990/types/models/fw"
 	"github.com/chai2010/cgo"
 )
 
@@ -430,21 +429,12 @@ func KeyValueToBytes(ival interface{}, size int) ([]byte, error) {
 		const sz = int(unsafe.Sizeof(cgotypes.PortKey{}))
 		fmt.Println("key cgotypes.PortKey size:", sz, "size:", size)
 		cgo.GoBytes(unsafe.Pointer(&val), sz)
-	case fw.PortKey:
-		const sz = int(unsafe.Sizeof(fw.PortKey{}))
-		res = (*(*[sz]byte)(unsafe.Pointer(&val)))[:]
 	case bool:
 		if size < 1 {
 			return nil, overflow
 		}
 		boolC := cgo.NewBool(val)
 		return boolC.Slice(0), nil
-	case fw.LpmV4Key:
-		const sz = int(unsafe.Sizeof(fw.LpmV4Key{}))
-		res = (*(*[sz]byte)(unsafe.Pointer(&val)))[:]
-	case fw.LpmV6Key:
-		const sz = int(unsafe.Sizeof(fw.LpmV4Key{}))
-		res = (*(*[sz]byte)(unsafe.Pointer(&val)))[:]
 	case net.HardwareAddr:
 		charC := cgo.CString(string(val))
 		copy(res[:], charC.Slice(len(val)))

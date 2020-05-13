@@ -3,6 +3,7 @@ package cgotypes
 /*
 #include <linux/types.h>
 #include <string.h>
+#include <stdlib.h>
 
 struct lpm_v4_key
 {
@@ -14,6 +15,11 @@ struct lpm_v6_key
 {
     __u32 prefixlen;
     __u8 address[16];
+};
+
+struct mac_key
+{
+	unsigned char address [6];
 };
 
 enum port_type
@@ -102,6 +108,36 @@ func GetLpmV4Key(prefix uint8, address [4]uint8) LpmV4Key {
 	}
 	C.memcpy(unsafe.Pointer(&resp.address[0]), unsafe.Pointer(&address[0]), C.size_t(4))
 	return LpmV4Key(resp)
+}
+
+type MacKey [6]C.uchar
+
+// // DestructorMacKey
+// func DestructorMacKey(m MacKey) {
+// 	C.free(unsafe.Pointer(m))
+// }
+
+func GetMacKey(address [6]uint8) MacKey {
+	var mac MacKey
+	C.memcpy(unsafe.Pointer(&mac[0]), unsafe.Pointer(&address[0]), C.size_t(6))
+	return mac
+}
+
+func (m MacKey) GetCharByIndex(index uint8) C.uchar {
+	return m[index]
+}
+
+func ParseFromSrtMac(macStr string) (key MacKey, err error) {
+	var ha net.HardwareAddr
+	ha, err = net.ParseMAC(macStr)
+	if err != nil {
+		return key, err
+	}
+	var addr [6]uint8
+	copy(addr[:], ha)
+	key = GetMacKey(addr)
+	fmt.Println(key)
+	return key, err
 }
 
 type LpmV6Key C.struct_lpm_v6_key

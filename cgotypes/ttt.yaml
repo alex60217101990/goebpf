@@ -1,0 +1,6 @@
+- type: destination_port
+  proto: udp_port
+  port: 8552
+- type: destination_port
+  proto: tcp_port
+  port: 5287

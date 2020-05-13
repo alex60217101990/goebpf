@@ -305,3 +305,95 @@ func GetPortKey(tp PortType, p PortProtocol, port uint32) PortKey {
 		port:   C.__u32(uint32(port)),
 	})
 }
+
+func (p *PortKey) MarshalJSON() ([]byte, error) {
+	type alias struct {
+		Type  string `yaml:"type" json:"type"`
+		Proto string `yaml:"proto" json:"proto"`
+		Port  uint32 `yaml:"port" json:"port"`
+	}
+	if p == nil {
+		p = &PortKey{}
+	}
+	return json.Marshal(alias{
+		Type:  PortType(p.type_p).String(),
+		Proto: PortProtocol(p.proto).String(),
+		Port:  uint32(p.port),
+	})
+}
+
+func (p *PortKey) UnmarshalJSON(data []byte) (err error) {
+	type alias struct {
+		Type  string `yaml:"type" json:"type"`
+		Proto string `yaml:"proto" json:"proto"`
+		Port  uint32 `yaml:"port" json:"port"`
+	}
+	var tmp alias
+	if err = json.Unmarshal(data, &tmp); err != nil {
+		return err
+	}
+	if p == nil {
+		p = &PortKey{}
+	}
+	tmpPortType := PortType(p.type_p)
+	err = tmpPortType.Set(tmp.Type)
+	if err != nil {
+		return fmt.Errorf("failed to parse '%s' to PortType: %v", tmp.Type, err)
+	}
+	p.type_p = C.enum_port_type(tmpPortType)
+	tmpPortProtocol := PortProtocol(p.proto)
+	err = tmpPortProtocol.Set(tmp.Proto)
+	if err != nil {
+		return fmt.Errorf("failed to parse '%s' to PortProtocol: %v", tmp.Proto, err)
+	}
+	p.proto = C.enum_port_protocol(tmpPortProtocol)
+	p.port = C.__u32(uint32(tmp.Port))
+
+	return nil
+}
+
+func (p *PortKey) MarshalYAML() (interface{}, error) {
+	type alias struct {
+		Type  string `yaml:"type" json:"type"`
+		Proto string `yaml:"proto" json:"proto"`
+		Port  uint32 `yaml:"port" json:"port"`
+	}
+	if p == nil {
+		p = &PortKey{}
+	}
+	return alias{
+		Type:  PortType(p.type_p).String(),
+		Proto: PortProtocol(p.proto).String(),
+		Port:  uint32(p.port),
+	}, nil
+}
+
+func (p *PortKey) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	type alias struct {
+		Type  string `yaml:"type" json:"type"`
+		Proto string `yaml:"proto" json:"proto"`
+		Port  uint32 `yaml:"port" json:"port"`
+	}
+	var tmp alias
+	if err := unmarshal(&tmp); err != nil {
+		return err
+	}
+	if p == nil {
+		p = &PortKey{}
+	}
+	tmpPortType := PortType(p.type_p)
+	err := tmpPortType.Set(tmp.Type)
+	if err != nil {
+		return fmt.Errorf("failed to parse '%s' to PortType: %v", tmp.Type, err)
+	}
+	p.type_p = C.enum_port_type(tmpPortType)
+	tmpPortProtocol := PortProtocol(p.proto)
+	err = tmpPortProtocol.Set(tmp.Proto)
+	if err != nil {
+		return fmt.Errorf("failed to parse '%s' to PortProtocol: %v", tmp.Proto, err)
+	}
+	p.proto = C.enum_port_protocol(tmpPortProtocol)
+	p.port = C.__u32(uint32(tmp.Port))
+
+	return nil
+}

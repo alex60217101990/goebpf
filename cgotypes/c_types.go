@@ -54,6 +54,8 @@ import "C"
 import (
 	"encoding/json"
 	"fmt"
+	"net"
+	"strings"
 	"unsafe"
 
 	"gopkg.in/yaml.v3"
@@ -70,6 +72,28 @@ func PrintEnums() {
 }
 
 type LpmV4Key C.struct_lpm_v4_key
+
+func ParseFromSrtV4(ipStr string) (key LpmV4Key, err error) {
+	var byteToInt int = 0
+	var ipnet *net.IPNet
+	// Check if given address is CIDR
+	if strings.Contains(ipStr, "/") {
+		_, ipnet, err = net.ParseCIDR(ipStr)
+	} else {
+		// Without mask
+		ipnet.IP = net.ParseIP(ipStr)
+	}
+	if err != nil {
+		return key, err
+	}
+	if ipnet.Mask != nil {
+		byteToInt, _ = ipnet.Mask.Size()
+	}
+	var addr [4]uint8
+	copy(addr[:], ipnet.IP.To4())
+	key = GetLpmV4Key(uint8(byteToInt), addr)
+	return key, err
+}
 
 func GetLpmV4Key(prefix uint8, address [4]uint8) LpmV4Key {
 	//oUnsafePointer := C.CBytes(address[:])
@@ -89,6 +113,28 @@ func GetLpmV6Key(prefix uint8, address [16]uint8) LpmV6Key {
 	}
 	C.memcpy(unsafe.Pointer(&resp.address[0]), unsafe.Pointer(&address[0]), C.size_t(16))
 	return LpmV6Key(resp)
+}
+
+func ParseFromSrtV6(ipStr string) (key LpmV6Key, err error) {
+	var byteToInt int = 0
+	var ipnet *net.IPNet
+	// Check if given address is CIDR
+	if strings.Contains(ipStr, "/") {
+		_, ipnet, err = net.ParseCIDR(ipStr)
+	} else {
+		// Without mask
+		ipnet.IP = net.ParseIP(ipStr)
+	}
+	if err != nil {
+		return key, err
+	}
+	if ipnet.Mask != nil {
+		byteToInt, _ = ipnet.Mask.Size()
+	}
+	var addr [16]uint8
+	copy(addr[:], ipnet.IP.To16())
+	key = GetLpmV6Key(uint8(byteToInt), addr)
+	return key, err
 }
 
 type PortType C.enum_port_type

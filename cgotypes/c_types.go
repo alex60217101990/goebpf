@@ -64,7 +64,6 @@ import (
 type PortKey C.struct_port_key
 
 func PrintEnums() {
-	fmt.Println(5555)
 	pt := new(C.enum_port_type)
 	fmt.Println(*pt)
 
@@ -300,20 +299,9 @@ func (p PortProtocol) String() string {
 }
 
 func GetPortKey(tp PortType, p PortProtocol, port uint32) PortKey {
-	// resp := new(C.struct_port_key)
-	// 	resp.type = C.enum_port_type(PortType)
-	// 	resp.proto = C.enum_port_protocol(PortProtocol)
-	//     resp.port = C.__u32(uint32(port))
-	//resp := PortKey{type: C.enum_port_type(PortType)}
-	// var tt C.struct_port_key
-	// tt.type = C.enum_port_type(tp)
-	// tt.proto = C.enum_port_protocol(p)
-	// tt.port = C.__u32(uint32(port))
-
-	gg := C.struct_port_key{
+	return PortKey(C.struct_port_key{
 		type_p: C.enum_port_type(tp),
 		proto:  C.enum_port_protocol(p),
 		port:   C.__u32(uint32(port)),
-	}
-	return PortKey(gg)
+	})
 }

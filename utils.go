@@ -121,6 +121,7 @@ import (
 	"time"
 	"unsafe"
 
+	"github.com/alex60217101990/goebpf/cgotypes"
 	"github.com/alex60217101990/types/models/fw"
 	"github.com/chai2010/cgo"
 )
@@ -417,6 +418,18 @@ func KeyValueToBytes(ival interface{}, size int) ([]byte, error) {
 		// however, for eBPF IP addr must be in BIG endian (network byte order)
 		copy(res[4:], val.IP)
 		return res, nil
+	case cgotypes.LpmV4Key:
+		const sz = int(unsafe.Sizeof(cgotypes.LpmV4Key{}))
+		fmt.Println("key cgotypes.LpmV4Key size:", sz, "size:", size)
+		cgo.GoBytes(unsafe.Pointer(&val), sz)
+	case cgotypes.LpmV6Key:
+		const sz = int(unsafe.Sizeof(cgotypes.LpmV6Key{}))
+		fmt.Println("key cgotypes.LpmV6Key size:", sz, "size:", size)
+		cgo.GoBytes(unsafe.Pointer(&val), sz)
+	case cgotypes.PortKey:
+		const sz = int(unsafe.Sizeof(cgotypes.PortKey{}))
+		fmt.Println("key cgotypes.PortKey size:", sz, "size:", size)
+		cgo.GoBytes(unsafe.Pointer(&val), sz)
 	case fw.PortKey:
 		const sz = int(unsafe.Sizeof(fw.PortKey{}))
 		res = (*(*[sz]byte)(unsafe.Pointer(&val)))[:]

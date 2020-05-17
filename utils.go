@@ -426,9 +426,16 @@ func KeyValueToBytes(ival interface{}, size int) ([]byte, error) {
 		fmt.Println("key cgotypes.LpmV6Key size:", sz, "size:", size)
 		cgo.GoBytes(unsafe.Pointer(&val), sz)
 	case cgotypes.PortKey:
-		const sz = int(unsafe.Sizeof(cgotypes.PortKey{}))
-		fmt.Println("key cgotypes.PortKey size:", sz, "size:", size)
-		cgo.GoBytes(unsafe.Pointer(&val), sz)
+		// const sz = int(unsafe.Sizeof(cgotypes.PortKey{}))
+		// fmt.Println("key cgotypes.PortKey size:", sz, "size:", size)
+		// cgo.GoBytes(unsafe.Pointer(&val), sz)
+		buf := &bytes.Buffer{}
+		err := binary.Write(buf, binary.LittleEndian, val)
+		if err != nil {
+			return nil, err
+		}
+		copy(res[:], buf.Bytes())
+		return res, nil
 	case bool:
 		if size < 1 {
 			return nil, overflow

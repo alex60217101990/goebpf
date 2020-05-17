@@ -433,3 +433,9 @@ func (p *PortKey) UnmarshalYAML(unmarshal func(interface{}) error) error {
 
 	return nil
 }
+
+type PortKeyGo struct {
+	Type  uint8
+	Proto uint8
+	Port  uint32
+}

@@ -437,15 +437,8 @@ func KeyValueToBytes(ival interface{}, size int) ([]byte, error) {
 		copy(res[:], buf.Bytes())
 		return res, nil
 	case cgotypes.PortKeyGo:
-		binary.LittleEndian.PutUint32(res, uint32(val.Type))
-		binary.LittleEndian.PutUint32(res, uint32(val.Proto))
-		binary.LittleEndian.PutUint32(res, uint32(val.Port))
-	case bool:
-		if size < 1 {
-			return nil, overflow
-		}
-		boolC := cgo.NewBool(val)
-		return boolC.Slice(0), nil
+		binary.LittleEndian.PutUint16(res, val.Type)
+		binary.LittleEndian.PutUint16(res, val.Port)
 	case net.HardwareAddr:
 		charC := cgo.CString(string(val))
 		copy(res[:], charC.Slice(len(val)))

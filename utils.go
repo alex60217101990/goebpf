@@ -441,7 +441,7 @@ func KeyValueToBytes(ival interface{}, size int) ([]byte, error) {
 			return nil, overflow
 		}
 		binary.LittleEndian.PutUint16(res, uint16(val.Type))
-		binary.LittleEndian.PutUint16(res, uint16(val.Port))
+		binary.LittleEndian.PutUint16(res[4:], uint16(val.Port))
 	case net.HardwareAddr:
 		charC := cgo.CString(string(val))
 		copy(res[:], charC.Slice(len(val)))

@@ -121,9 +121,7 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/alex60217101990/goebpf/cgotypes"
 	"github.com/alex60217101990/types/models"
-	"github.com/chai2010/cgo"
 )
 
 const (
@@ -400,7 +398,7 @@ func KeyValueToBytes(ival interface{}, size int) ([]byte, error) {
 			return nil, overflow
 		}
 		copy(res, val)
-	case []byte /*, net.HardwareAddr*/ :
+	case []byte:
 		if size < len(val) {
 			return nil, overflow
 		}
@@ -423,14 +421,32 @@ func KeyValueToBytes(ival interface{}, size int) ([]byte, error) {
 		// however, for eBPF IP addr must be in BIG endian (network byte order)
 		copy(res[4:], val.IP)
 		return res, nil
-	case cgotypes.LpmV4Key:
-		const sz = int(unsafe.Sizeof(cgotypes.LpmV4Key{}))
-		fmt.Println("key cgotypes.LpmV4Key size:", sz, "size:", size)
-		cgo.GoBytes(unsafe.Pointer(&val), sz)
-	case cgotypes.LpmV6Key:
-		const sz = int(unsafe.Sizeof(cgotypes.LpmV6Key{}))
-		fmt.Println("key cgotypes.LpmV6Key size:", sz, "size:", size)
-		cgo.GoBytes(unsafe.Pointer(&val), sz)
+	case *models.IPv4Key:
+		ones, bits := val.Mask.Size()
+		if size < bits/8+4 {
+			return nil, overflow
+		}
+		// Put prefix len
+		binary.LittleEndian.PutUint32(res, uint32(ones))
+		copy(res[4:], val.IP.To4())
+		return res, nil
+	case *models.IPv6Key:
+		ones, bits := val.Mask.Size()
+		if size < bits/8+4 {
+			return nil, overflow
+		}
+		// Put prefix len
+		binary.LittleEndian.PutUint32(res, uint32(ones))
+		copy(res[4:], val.IP.To16())
+		return res, nil
+	// case cgotypes.LpmV4Key:
+	// 	const sz = int(unsafe.Sizeof(cgotypes.LpmV4Key{}))
+	// 	fmt.Println("key cgotypes.LpmV4Key size:", sz, "size:", size)
+	// 	cgo.GoBytes(unsafe.Pointer(&val), sz)
+	// case cgotypes.LpmV6Key:
+	// 	const sz = int(unsafe.Sizeof(cgotypes.LpmV6Key{}))
+	// 	fmt.Println("key cgotypes.LpmV6Key size:", sz, "size:", size)
+	// 	cgo.GoBytes(unsafe.Pointer(&val), sz)
 	case models.PortKey:
 		if size < 4 {
 			return nil, overflow
@@ -444,17 +460,17 @@ func KeyValueToBytes(ival interface{}, size int) ([]byte, error) {
 		}
 		fmt.Println()
 		return res, nil
-	case cgotypes.PortKeyGo:
-		if size < 4 {
-			return nil, overflow
-		}
-		binary.LittleEndian.PutUint16(res, uint16(val.Type))
-		binary.LittleEndian.PutUint16(res[2:], uint16(val.Port))
-		for _, char := range res {
-			fmt.Printf("%0x ", char)
-		}
-		fmt.Println()
-		return res, nil
+	// case cgotypes.PortKeyGo:
+	// 	if size < 4 {
+	// 		return nil, overflow
+	// 	}
+	// 	binary.LittleEndian.PutUint16(res, uint16(val.Type))
+	// 	binary.LittleEndian.PutUint16(res[2:], uint16(val.Port))
+	// 	for _, char := range res {
+	// 		fmt.Printf("%0x ", char)
+	// 	}
+	// 	fmt.Println()
+	// 	return res, nil
 	default:
 		return nil, fmt.Errorf("Type %T is not supported yet", val)
 	}

@@ -7,6 +7,7 @@ import (
 	"net"
 	"testing"
 
+	"github.com/alex60217101990/types/models"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -63,6 +64,10 @@ func TestKeyValueToBytes(t *testing.T) {
 		bytes []byte
 	}
 	addr, _ := net.ParseMAC("38:59:f9:29:a2:6f")
+	var ipv4 models.IPv4Key
+	ipv4.ParseFromStr("187.162.11.94")
+	var ipv6 models.IPv6Key
+	ipv6.ParseFromStr("::1")
 	// key, key_size, expected
 	runs := []run{
 		// regular integers
@@ -115,6 +120,9 @@ func TestKeyValueToBytes(t *testing.T) {
 		{[]byte{'b', 0, 0, 0}, 4, []byte{'b', 0, 0, 0}},
 
 		{addr, 6, addr},
+
+		{&ipv4, 8, []byte{0x20, 0x0, 0x0, 0x0, 0xbb, 0xa2, 0xb, 0x5e}},
+		{&ipv6, 20, []byte{0x80, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1}},
 
 		// CreateLPMtrieKey, IPv4
 		{CreateLPMtrieKey("192.168.1.0/24"), 8, []byte{0x18, 0x0, 0x0, 0x0, 0xc0, 0xa8, 0x01, 0x0}},

@@ -4,6 +4,7 @@
 package goebpf
 
 import (
+	"net"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -61,6 +62,7 @@ func TestKeyValueToBytes(t *testing.T) {
 		size  int
 		bytes []byte
 	}
+	addr, _ := net.ParseMAC("38:59:f9:29:a2:6f")
 	// key, key_size, expected
 	runs := []run{
 		// regular integers
@@ -111,6 +113,8 @@ func TestKeyValueToBytes(t *testing.T) {
 		{[]byte{}, 1, []byte{0}},
 		{[]byte{'a'}, 1, []byte{'a'}},
 		{[]byte{'b', 0, 0, 0}, 4, []byte{'b', 0, 0, 0}},
+
+		{addr, 6, addr},
 
 		// CreateLPMtrieKey, IPv4
 		{CreateLPMtrieKey("192.168.1.0/24"), 8, []byte{0x18, 0x0, 0x0, 0x0, 0xc0, 0xa8, 0x01, 0x0}},

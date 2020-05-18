@@ -405,6 +405,11 @@ func KeyValueToBytes(ival interface{}, size int) ([]byte, error) {
 			return nil, overflow
 		}
 		copy(res, val)
+	case net.HardwareAddr:
+		if size < len(val) {
+			return nil, overflow
+		}
+		copy(res, val)
 	case *net.IPNet:
 		ones, bits := val.Mask.Size()
 		// IP addr size + uint32

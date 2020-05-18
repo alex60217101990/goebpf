@@ -400,7 +400,7 @@ func KeyValueToBytes(ival interface{}, size int) ([]byte, error) {
 			return nil, overflow
 		}
 		copy(res, val)
-	case []byte, net.HardwareAddr:
+	case []byte /*, net.HardwareAddr*/ :
 		if size < len(val) {
 			return nil, overflow
 		}

@@ -122,6 +122,7 @@ import (
 	"unsafe"
 
 	"github.com/alex60217101990/goebpf/cgotypes"
+	"github.com/alex60217101990/types/models"
 	"github.com/chai2010/cgo"
 )
 
@@ -399,7 +400,7 @@ func KeyValueToBytes(ival interface{}, size int) ([]byte, error) {
 			return nil, overflow
 		}
 		copy(res, val)
-	case []byte:
+	case []byte, net.HardwareAddr:
 		if size < len(val) {
 			return nil, overflow
 		}
@@ -425,16 +426,18 @@ func KeyValueToBytes(ival interface{}, size int) ([]byte, error) {
 		const sz = int(unsafe.Sizeof(cgotypes.LpmV6Key{}))
 		fmt.Println("key cgotypes.LpmV6Key size:", sz, "size:", size)
 		cgo.GoBytes(unsafe.Pointer(&val), sz)
-	case cgotypes.PortKey:
-		// const sz = int(unsafe.Sizeof(cgotypes.PortKey{}))
-		// fmt.Println("key cgotypes.PortKey size:", sz, "size:", size)
-		// cgo.GoBytes(unsafe.Pointer(&val), sz)
-		buf := &bytes.Buffer{}
-		err := binary.Write(buf, binary.LittleEndian, val)
-		if err != nil {
-			return nil, err
+	case models.PortKey:
+		if size < 10 {
+			return nil, overflow
 		}
-		copy(res[:], buf.Bytes())
+		binary.LittleEndian.PutUint32(res, uint32(val.Type))
+		binary.LittleEndian.PutUint32(res[4:], uint32(val.Port))
+		binary.LittleEndian.PutUint16(res[8:], uint16(val.Port))
+		fmt.Print("models.PortKey: ")
+		for _, char := range res {
+			fmt.Printf("%0x ", char)
+		}
+		fmt.Println()
 		return res, nil
 	case cgotypes.PortKeyGo:
 		if size < 4 {
@@ -446,10 +449,6 @@ func KeyValueToBytes(ival interface{}, size int) ([]byte, error) {
 			fmt.Printf("%0x ", char)
 		}
 		fmt.Println()
-		return res, nil
-	case net.HardwareAddr:
-		charC := cgo.CString(string(val))
-		copy(res[:], charC.Slice(len(val)))
 		return res, nil
 	default:
 		return nil, fmt.Errorf("Type %T is not supported yet", val)

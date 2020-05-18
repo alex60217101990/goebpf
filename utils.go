@@ -431,7 +431,7 @@ func KeyValueToBytes(ival interface{}, size int) ([]byte, error) {
 			return nil, overflow
 		}
 		res[0] = uint8(val.Type)
-		res[1] = uint8(val.Port)
+		res[1] = uint8(val.Proto)
 		binary.LittleEndian.PutUint16(res[2:], uint16(val.Port))
 		fmt.Print("models.PortKey: ")
 		for _, char := range res {
